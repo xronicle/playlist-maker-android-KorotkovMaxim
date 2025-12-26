@@ -86,9 +86,9 @@ fun SettingsScreen(onBack: () -> Unit) {
                     ) {
                         val intent = Intent(Intent.ACTION_SENDTO)
                         intent.data = "mailto:".toUri()
-                        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("1eshiy@tpu.ru"))
-                        intent.putExtra(Intent.EXTRA_TITLE, "Сообщение разработчикам и разработчицам приложения Playlist Maker")
-                        intent.putExtra(Intent.EXTRA_TEXT, "Спасибо разработчикам и разработчицам за крутое приложение!")
+                        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("mak107@tpu.ru"))
+                        intent.putExtra(Intent.EXTRA_TITLE, "Сообщение разработчикам приложения Playlist Maker")
+                        intent.putExtra(Intent.EXTRA_TEXT, "Здравствуйте, разработчики приложения Playlist Maker!")
                         context.startActivity(intent)
                     },
                     ListItem(

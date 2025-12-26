@@ -18,10 +18,10 @@
     <string name="chevron_right">Шеврон вправо</string>
     <string name="support">Поддержка</string>
 
-    <string name="share_app_message">прiв! я уже давно пользуюсь PLAYLIST MAKER бро. давай со мной =D</string>
+    <string name="share_app_message">Привет! Я пользуюсь PlaylistMaker. Давай со мной!</string>
 
     <string name="user_agreement_url">https://yandex.ru/legal/practicum_offer/ru/</string>
-    <string name="support_mail_to">1eshiy@tpu.ru</string>
-    <string name="support_mail_title">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
-    <string name="support_mail_text">Спасибо разработчикам и разработчицам за крутое приложение!</string>
+    <string name="support_mail_to">mak107@tpu.ru</string>
+    <string name="support_mail_title">Сообщение разработчикам приложения Playlist Maker</string>
+    <string name="support_mail_text">Спасибо  за крутое приложение!</string>
 </resources>
