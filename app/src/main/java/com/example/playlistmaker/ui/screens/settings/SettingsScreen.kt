@@ -3,12 +3,14 @@ package com.example.playlistmaker.ui.screens.settings
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -16,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.playlistmaker.R
-import com.example.playlistmaker.ui.components.List
+import com.example.playlistmaker.ui.components.OptionsList
 import com.example.playlistmaker.ui.components.ListItem
 import com.example.playlistmaker.ui.components.TabTopBar
 import androidx.core.net.toUri
@@ -35,12 +37,18 @@ fun SettingsScreen(onBack: () -> Unit) {
             paddingValues ->
             val shareMessage = stringResource(R.string.share_app_message)
             val userAgreementUrl = stringResource(R.string.user_agreement_url)
-            List(
-                textStyle = MaterialTheme.typography.bodyLarge,
+            OptionsList(
                 paddings = paddingValues,
+                itemsPaddings = PaddingValues(vertical = 20.dp, horizontal = 12.dp),
                 items = listOf(
                     ListItem(
-                        text = stringResource(R.string.share_app),
+                        content = {
+                            Text(
+                                text = stringResource(R.string.share_app),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
                         trailingIcon = {
                             Icon(
                                 painter = painterResource(R.drawable.share),
@@ -58,7 +66,13 @@ fun SettingsScreen(onBack: () -> Unit) {
                         context.startActivity(intent)
                     },
                     ListItem(
-                        text = stringResource(R.string.contact_support),
+                        content = {
+                            Text(
+                                text = stringResource(R.string.contact_support),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
                         trailingIcon = {
                             Icon(
                                 painter = painterResource(R.drawable.support),
@@ -78,7 +92,13 @@ fun SettingsScreen(onBack: () -> Unit) {
                         context.startActivity(intent)
                     },
                     ListItem(
-                        text = stringResource(R.string.user_agreement),
+                        content = {
+                            Text(
+                                text = stringResource(R.string.user_agreement),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
                         trailingIcon = {
                             Icon(
                                 painter = painterResource(R.drawable.chevron_right),
