@@ -1,4 +1,4 @@
-package com.example.playlistmaker.ui.screens
+package com.example.playlistmaker.ui.screens.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

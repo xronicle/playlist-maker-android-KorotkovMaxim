@@ -1,4 +1,4 @@
-package com.example.playlistmaker.ui.screens
+package com.example.playlistmaker.ui.screens.settings
 
 import android.content.Intent
 import androidx.compose.foundation.background

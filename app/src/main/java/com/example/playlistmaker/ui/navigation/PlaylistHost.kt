@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.playlistmaker.ui.screens.MainScreen
-import com.example.playlistmaker.ui.screens.SearchScreen
-import com.example.playlistmaker.ui.screens.SettingsScreen
+import com.example.playlistmaker.ui.screens.main.MainScreen
+import com.example.playlistmaker.ui.screens.search.SearchScreen
+import com.example.playlistmaker.ui.screens.settings.SettingsScreen
 
 @Composable
 fun PlaylistHost() {
