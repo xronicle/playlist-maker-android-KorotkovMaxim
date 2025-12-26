@@ -1,4 +1,4 @@
-package com.example.playlistmaker.ui.screens
+package com.example.playlistmaker.ui.screens.main
 
 import android.widget.Toast
 import androidx.compose.foundation.background
