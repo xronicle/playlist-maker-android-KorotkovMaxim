@@ -15,17 +15,17 @@ import java.io.IOException
 class SearchViewModel(
     private val tracksRepository : TracksRepository
 ) : ViewModel() {
-    private val _allTracksScreenState = MutableStateFlow<SearchState>(SearchState.Initial)
-    val allTracksScreenState = _allTracksScreenState.asStateFlow()
+    private val _searchScreenState = MutableStateFlow<SearchState>(SearchState.Initial)
+    val searchScreenState = _searchScreenState.asStateFlow()
 
-    fun fetchData() {
+    fun search(whatSearch: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _allTracksScreenState.update { SearchState.Loading }
-                val list = tracksRepository.searchTracks("")
-                _allTracksScreenState.update { SearchState.Success(list) }
+                _searchScreenState.update { SearchState.Searching }
+                val list = tracksRepository.searchTracks(whatSearch)
+                _searchScreenState.update { SearchState.Success(list) }
             } catch (e: IOException) {
-                _allTracksScreenState.update { SearchState.Error(e.message.toString()) }
+                _searchScreenState.update { SearchState.Fail(e.message.toString()) }
             }
         }
     }
@@ -35,7 +35,7 @@ class SearchViewModel(
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return SearchViewModel(Creator.getRepository()) as T
+                    return SearchViewModel(Creator.getTracksRepository()) as T
                 }
             }
     }
