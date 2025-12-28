@@ -9,6 +9,7 @@
     <string name="clear">Очистить</string>
     <string name="back">Назад</string>
     <string name="share">Поделиться</string>
+    <string name="error_message">Ошибка: %1$s</string>
 
     <string name="dark_theme">Тёмная тема</string>
     <string name="share_app">Поделиться приложением</string>
@@ -23,5 +24,5 @@
     <string name="user_agreement_url">https://yandex.ru/legal/practicum_offer/ru/</string>
     <string name="support_mail_to">mak107@tpu.ru</string>
     <string name="support_mail_title">Сообщение разработчикам приложения Playlist Maker</string>
-    <string name="support_mail_text">Спасибо  за крутое приложение!</string>
+    <string name="support_mail_text">Спасибо за крутое приложение!</string>
 </resources>

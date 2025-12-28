@@ -142,7 +142,7 @@ fun SearchScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Ошибка: $error",
+                            text = stringResource(R.string.error_message, error),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.error
                         )
