@@ -1,6 +1,5 @@
 package com.example.playlistmaker.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,13 +17,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.playlistmaker.R
+import coil.compose.SubcomposeAsyncImage
 import com.example.playlistmaker.domain.models.Track
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -44,19 +44,48 @@ fun TrackListItem(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+
+        // Заменили Box на SubcomposeAsyncImage от Coil
+        SubcomposeAsyncImage(
+            model = track.image, // Ссылка на картинку из сети
+            contentDescription = "Обложка",
             modifier = Modifier
                 .size(48.dp)
-                .background(Color(0xFF333333), RoundedCornerShape(4.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Audiotrack,
-                contentDescription = "Обложка",
-                tint = Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
-        }
+                .clip(RoundedCornerShape(4.dp)), // Скругляем саму скачанную картинку
+            contentScale = ContentScale.Crop, // Обрезаем, чтобы не искажались пропорции
+
+            // То, что показывается во время загрузки или если нет интернета
+            loading = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF333333)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Audiotrack,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            },
+            error = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF333333)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Audiotrack,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        )
 
         Spacer(modifier = Modifier.width(16.dp))
 

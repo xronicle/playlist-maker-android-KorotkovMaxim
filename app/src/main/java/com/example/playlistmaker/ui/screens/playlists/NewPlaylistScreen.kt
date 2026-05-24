@@ -133,6 +133,8 @@ fun NewPlaylistScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground, // Добавили цвет текста!
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground, // Добавили цвет текста!
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = Color.Gray
                 )
@@ -147,6 +149,8 @@ fun NewPlaylistScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground, // Добавили цвет текста!
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground, // Добавили цвет текста!
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = Color.Gray
                 )

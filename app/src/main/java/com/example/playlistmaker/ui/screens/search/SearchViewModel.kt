@@ -2,9 +2,9 @@ package com.example.playlistmaker.ui.screens.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.playlistmaker.data.repository.SearchHistoryRepositoryImpl
+import com.example.playlistmaker.domain.api.SearchHistoryRepository
 import com.example.playlistmaker.domain.api.TracksRepository
-import kotlinx.coroutines.Dispatchers
+import com.example.playlistmaker.domain.models.Resource
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,14 +12,12 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 
 @OptIn(FlowPreview::class)
 class SearchViewModel(
-    private val tracksRepository: TracksRepository
+    private val tracksRepository: TracksRepository,
+    private val searchHistoryRepository: SearchHistoryRepository
 ) : ViewModel() {
-
-    private val searchHistoryRepository = SearchHistoryRepositoryImpl()
 
     private val _searchQuery = MutableStateFlow("")
 
@@ -46,15 +44,23 @@ class SearchViewModel(
     }
 
     private fun performSearch(request: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                _searchScreenState.update { SearchState.Searching }
-                searchHistoryRepository.addToHistory(request)
+        _searchScreenState.update { SearchState.Searching }
 
-                val list = tracksRepository.searchTracks(expression = request)
-                _searchScreenState.update { SearchState.Success(foundList = list) }
-            } catch (e: IOException) {
-                _searchScreenState.update { SearchState.Fail(e.message ?: "Unknown error") }
+        viewModelScope.launch {
+            tracksRepository.searchTracks(request).collect { resource ->
+                when (resource) {
+                    is Resource.Success -> {
+                        searchHistoryRepository.addToHistory(request)
+                        _searchScreenState.update {
+                            SearchState.Success(foundList = resource.data ?: emptyList())
+                        }
+                    }
+                    is Resource.Error -> {
+                        _searchScreenState.update {
+                            SearchState.Fail(error = resource.message ?: "Unknown error")
+                        }
+                    }
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember // ОЧЕНЬ ВАЖНЫЙ ИМПОРТ ДЛЯ РЕШЕНИЯ ПРОБЛЕМЫ
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -22,16 +23,17 @@ import com.example.playlistmaker.ui.screens.search.SearchState
 import com.example.playlistmaker.ui.screens.search.SearchViewModel
 import com.example.playlistmaker.ui.screens.settings.SettingsScreen
 import com.example.playlistmaker.ui.screens.settings.SettingsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun PlaylistHost(
-    searchViewModel: SearchViewModel,
-    playlistsViewModel: PlaylistsViewModel,
-    settingsViewModel: SettingsViewModel
-) {
+fun PlaylistHost() {
     val navController = rememberNavController()
-    val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
 
+    val searchViewModel: SearchViewModel = koinViewModel()
+    val playlistsViewModel: PlaylistsViewModel = koinViewModel()
+    val settingsViewModel: SettingsViewModel = koinViewModel()
+
+    val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
     val favoriteTracks by playlistsViewModel.favoriteList.collectAsState(initial = emptyList())
 
     Scaffold { innerPadding ->
@@ -83,6 +85,7 @@ fun PlaylistHost(
                 )
             }
 
+            // Плеер из поиска (остается на индексах)
             composable(
                 route = "track_details/{trackIndex}",
                 arguments = listOf(navArgument("trackIndex") { type = NavType.IntType })
@@ -102,12 +105,18 @@ fun PlaylistHost(
                 }
             }
 
+            // Плеер из избранного (теперь работает по ID и использует remember!)
             composable(
-                route = "favorite_track_details/{trackIndex}",
-                arguments = listOf(navArgument("trackIndex") { type = NavType.IntType })
+                route = "favorite_track_details/{trackId}",
+                arguments = listOf(navArgument("trackId") { type = NavType.LongType })
             ) { backStackEntry ->
-                val trackIndex = backStackEntry.arguments?.getInt("trackIndex") ?: 0
-                val track = favoriteTracks.getOrNull(trackIndex)
+                val trackId = backStackEntry.arguments?.getLong("trackId") ?: 0L
+
+                // Получаем трек один раз при входе
+                val initialTrack = playlistsViewModel.getTrackById(trackId)
+
+                // "Запоминаем" его, чтобы экран не пропал при снятии лайка
+                val track = remember { initialTrack }
 
                 if (track != null) {
                     TrackDetailsScreen(
@@ -123,8 +132,8 @@ fun PlaylistHost(
                     playlistsViewModel = playlistsViewModel,
                     isDarkTheme = isDarkTheme,
                     navigateBack = { navController.popBackStack() },
-                    navigateToPlayer = { index ->
-                        navController.navigate("favorite_track_details/$index")
+                    navigateToPlayer = { id ->
+                        navController.navigate("favorite_track_details/$id")
                     }
                 )
             }

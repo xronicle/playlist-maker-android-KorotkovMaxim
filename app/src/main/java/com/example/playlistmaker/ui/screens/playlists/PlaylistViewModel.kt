@@ -2,10 +2,7 @@ package com.example.playlistmaker.ui.screens.playlists
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.data.DatabaseMock
-import com.example.playlistmaker.data.repository.PlaylistsRepositoryImpl
-import com.example.playlistmaker.data.repository.TracksRepositoryImpl
 import com.example.playlistmaker.domain.api.PlaylistsRepository
 import com.example.playlistmaker.domain.api.TracksRepository
 import com.example.playlistmaker.domain.models.Playlist
@@ -15,11 +12,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
-class PlaylistsViewModel : ViewModel() {
-
-    private val playlistsRepository: PlaylistsRepository = PlaylistsRepositoryImpl()
-    private val tracksRepository: TracksRepository = Creator.getTracksRepository()
-    private val databaseRepository: DatabaseMock = DatabaseMock
+class PlaylistsViewModel(
+    private val playlistsRepository: PlaylistsRepository,
+    private val tracksRepository: TracksRepository
+) : ViewModel() {
 
     val playlists: Flow<List<Playlist>> = flow {
         val collectedPlaylists = mutableListOf<Playlist>()
@@ -29,7 +25,7 @@ class PlaylistsViewModel : ViewModel() {
         }
     }
 
-    val favoriteList: Flow<List<Track>> = databaseRepository.getFavoriteTracks()
+    val favoriteList: Flow<List<Track>> = DatabaseMock.getFavoriteTracks()
 
     fun createNewPlayList(namePlaylist: String, description: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -61,8 +57,12 @@ class PlaylistsViewModel : ViewModel() {
             playlistsRepository.deletePlaylistById(id)
         }
     }
+
     fun getTrackState(track: Track): Flow<Track?> {
         return tracksRepository.getTrackByNameAndArtist(track)
     }
 
+    fun getTrackById(id: Long): Track? {
+        return DatabaseMock.getTrackById(id)
+    }
 }
