@@ -1,151 +1,324 @@
 package com.example.playlistmaker.ui.screens.search
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.playlistmaker.R
-import com.example.playlistmaker.ui.components.ListItem
-import com.example.playlistmaker.ui.components.OptionsList
-import com.example.playlistmaker.ui.components.TabTopBar
-import com.example.playlistmaker.ui.components.Track
+import com.example.playlistmaker.ui.components.TrackListItem
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    viewModel: SearchViewModel,
-    onBack: () -> Unit
+    searchViewModel: SearchViewModel,
+    isDarkTheme: Boolean,
+    onClick: (Int?) -> Unit
+
 ) {
-    val screenState by viewModel.searchScreenState.collectAsState()
-    var searchValue by rememberSaveable { mutableStateOf("") }
-    Scaffold(
+
+    val screenState by searchViewModel.searchScreenState.collectAsState()
+
+    var text by remember { mutableStateOf("") }
+
+    var isFocused by remember { mutableStateOf(false) }
+
+    var historyList by remember { mutableStateOf<List<String>>(emptyList()) }
+
+
+    val focusRequester = remember { FocusRequester() }
+
+    val focusManager = LocalFocusManager.current
+
+
+    LaunchedEffect(text) {
+
+        searchViewModel.updateQuery(text)
+
+    }
+
+    LaunchedEffect(Unit) {
+
+        historyList = searchViewModel.getHistoryList()
+
+    }
+
+
+    Column(
+
         modifier = Modifier
+
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        topBar = { TabTopBar(stringResource(R.string.search), onBack) }
-    ) { paddingValues ->
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+
+            .background(MaterialTheme.colorScheme.background)
+
+            .padding(top = 16.dp)
+
+    ) {
+
+        Row(
+
+            modifier = Modifier
+
+                .fillMaxWidth()
+
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+
+            verticalAlignment = Alignment.CenterVertically
+
         ) {
-            OutlinedTextField(
-                value = searchValue,
-                onValueChange = { searchValue = it },
-                placeholder = {
-                    Text(
-                        stringResource(R.string.search),
-                        style = MaterialTheme.typography.bodyLarge
+
+            Icon(
+
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+
+                contentDescription = "Назад",
+
+                modifier = Modifier
+
+                    .size(24.dp)
+
+                    .clickable { onClick(null) },
+
+                tint = MaterialTheme.colorScheme.onBackground
+
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+
+                text = "Поиск",
+
+                fontSize = 22.sp,
+
+                fontWeight = FontWeight.Medium,
+
+                color = MaterialTheme.colorScheme.onBackground
+
+            )
+
+        }
+
+        TextField(
+
+            value = text,
+
+            onValueChange = { text = it },
+
+            modifier = Modifier
+
+                .fillMaxWidth()
+
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+
+                .focusRequester(focusRequester)
+
+                .onFocusChanged { isFocused = it.isFocused },
+
+            placeholder = { Text("Поиск", color = Color.Gray) },
+
+            leadingIcon = {
+
+                Icon(Icons.Filled.Search, contentDescription = "Search", tint = Color.Gray)
+
+            },
+
+            trailingIcon = {
+
+                if (text.isNotEmpty()) {
+
+                    Icon(
+
+                        imageVector = Icons.Filled.Clear,
+
+                        contentDescription = "Clear",
+
+                        tint = Color.Gray,
+
+                        modifier = Modifier.clickable {
+
+                            text = ""
+
+                            searchViewModel.clearSearch()
+
+                            focusManager.clearFocus()
+
+                        }
+
                     )
-                },
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge,
-                colors = OutlinedTextFieldDefaults.colors().copy(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceContainer,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.surfaceContainer,
-                ),
-                leadingIcon = {
-                    IconButton(
-                        onClick = { viewModel.search(searchValue) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = stringResource(R.string.search),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                trailingIcon = {
-                    if (searchValue != "") {
-                        IconButton(
-                            onClick = { searchValue = "" }
+
+                }
+
+            },
+
+            singleLine = true,
+
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+
+            shape = RoundedCornerShape(8.dp),
+
+            colors = TextFieldDefaults.colors(
+
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+
+                focusedContainerColor = Color(0xFFE6E8EB).copy(alpha = 0.3f),
+
+                unfocusedContainerColor = Color(0xFFE6E8EB).copy(alpha = 0.3f),
+
+                cursorColor = Color.Blue,
+
+                focusedIndicatorColor = Color.Transparent,
+
+                unfocusedIndicatorColor = Color.Transparent
+
+            )
+
+        )
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Основной контент
+        Box(modifier = Modifier.fillMaxSize()) {
+            when (screenState) {
+                is SearchState.Initial -> {
+                    if (text.isEmpty() && isFocused && historyList.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = stringResource(R.string.clear),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            Text(
+                                text = "Вы искали",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
                             )
+
+                            LazyColumn(modifier = Modifier.weight(1f)) {
+                                items(historyList.size) { index ->
+                                    Text(
+                                        text = historyList[index],
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                text = historyList[index]
+                                                focusManager.clearFocus()
+                                            }
+                                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    )
+                                }
+                            }
+
+                            Button(
+                                onClick = {
+                                    historyList = emptyList()
+                                },
+                                modifier = Modifier.padding(bottom = 24.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                            ) {
+                                Text("Очистить историю", color = MaterialTheme.colorScheme.onSecondary)
+                            }
                         }
                     }
-                },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues)
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-            )
-            when (screenState) {
-                is SearchState.Initial -> {}
+                }
+
                 is SearchState.Searching -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.TopCenter).padding(top = 100.dp),
+                        color = Color.Blue
+                    )
                 }
 
                 is SearchState.Success -> {
-                    val tracks = (screenState as SearchState.Success).list
-                    val tracksListItems: List<ListItem> = tracks.map {
-                        ListItem(
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.chevron_right),
-                                    contentDescription = stringResource(R.string.chevron_right),
-                                    tint = MaterialTheme.colorScheme.onSecondary
-                                )
-                            },
-                            content = { Track(it) },
-                        )
-                    }
+                    val tracks = (screenState as SearchState.Success).foundList
+                    if (tracks.isEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxSize().padding(top = 100.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            val nothingFoundIcon = if (isDarkTheme) R.drawable.nothing_dark else R.drawable.nothing_light
 
-                    OptionsList(
-                        isLazy = true,
-                        items = tracksListItems,
-                        itemsPaddings = PaddingValues(horizontal = 13.dp, vertical = 8.dp)
-                    )
+                            Image(
+                                painter = painterResource(id = nothingFoundIcon),
+                                contentDescription = "Ничего не найдено",
+                                modifier = Modifier.size(120.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Ничего не найдено",
+                                fontSize = 19.sp,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        LazyColumn {
+                            items(tracks.size) { index ->
+                                TrackListItem(track = tracks[index]) {
+                                    onClick(index)
+                                }
+                            }
+                        }
+                    }
                 }
 
                 is SearchState.Fail -> {
-                    val error = (screenState as SearchState.Fail).error
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(top = 100.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "Ошибка: $error",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.error
+                        val noInternetIcon = if (isDarkTheme) R.drawable.nointernet_dark else R.drawable.nointernet_light
+
+                        Image(
+                            painter = painterResource(id = noInternetIcon),
+                            contentDescription = "Нет интернета",
+                            modifier = Modifier.size(120.dp)
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Проблема со связью\n\nЗагрузка не удалась. Проверьте подключение к интернету.",
+                            fontSize = 19.sp,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            onClick = { searchViewModel.updateQuery(text) },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        ) {
+                            Text("Обновить", color = MaterialTheme.colorScheme.onSecondary)
+                        }
                     }
                 }
             }

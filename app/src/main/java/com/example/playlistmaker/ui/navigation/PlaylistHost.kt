@@ -1,52 +1,140 @@
 package com.example.playlistmaker.ui.navigation
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.playlistmaker.ui.screens.favorites.FavoritesScreen
 import com.example.playlistmaker.ui.screens.main.MainScreen
+import com.example.playlistmaker.ui.screens.player.TrackDetailsScreen
+import com.example.playlistmaker.ui.screens.playlists.NewPlaylistScreen
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsScreen
+import com.example.playlistmaker.ui.screens.playlists.PlaylistsViewModel
 import com.example.playlistmaker.ui.screens.search.SearchScreen
+import com.example.playlistmaker.ui.screens.search.SearchState
 import com.example.playlistmaker.ui.screens.search.SearchViewModel
 import com.example.playlistmaker.ui.screens.settings.SettingsScreen
+import com.example.playlistmaker.ui.screens.settings.SettingsViewModel
 
 @Composable
-fun PlaylistHost() {
+fun PlaylistHost(
+    searchViewModel: SearchViewModel,
+    playlistsViewModel: PlaylistsViewModel,
+    settingsViewModel: SettingsViewModel
+) {
     val navController = rememberNavController()
+    val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
 
-    NavHost(navController = navController, startDestination = Screen.Main.getRoute()) {
-        composable(route = Screen.Main.getRoute()) {
-            MainScreen(
-                navigateToSearch = {
-                    navController.navigate(Screen.Search.getRoute())
-                },
-                navigateToPlaylists = {
-                    navController.navigate(Screen.Playlists.getRoute())
-                },
-                navigateToFavorites = {
-                    navController.navigate(Screen.Favorites.getRoute())
-                },
-                navigateToSettings = {
-                    navController.navigate(Screen.Settings.getRoute())
+    val favoriteTracks by playlistsViewModel.favoriteList.collectAsState(initial = emptyList())
+
+    Scaffold { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Main.getRoute(),
+            modifier = Modifier.padding(innerPadding)
+        ) {
+
+            composable(Screen.Main.getRoute()) {
+                MainScreen(
+                    navigateToSearch = { navController.navigate(Screen.Search.getRoute()) },
+                    navigateToPlaylists = { navController.navigate(Screen.Playlists.getRoute()) },
+                    navigateToSettings = { navController.navigate(Screen.Settings.getRoute()) },
+                    navigateToFavorites = { navController.navigate(Screen.Favorites.getRoute()) }
+                )
+            }
+
+            composable(Screen.Search.getRoute()) {
+                SearchScreen(
+                    searchViewModel = searchViewModel,
+                    isDarkTheme = isDarkTheme,
+                    onClick = { index ->
+                        if (index == null) {
+                            navController.popBackStack()
+                        } else {
+                            val playerRoute = "track_details"
+                            navController.navigate("$playerRoute/$index")
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.Playlists.getRoute()) {
+                PlaylistsScreen(
+                    playlistsViewModel = playlistsViewModel,
+                    isDarkTheme = isDarkTheme,
+                    addNewPlaylist = { navController.navigate("new_playlist") },
+                    navigateToPlaylist = { playlistId ->
+                    },
+                    navigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable("new_playlist") {
+                NewPlaylistScreen(
+                    playlistsViewModel = playlistsViewModel,
+                    navigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = "track_details/{trackIndex}",
+                arguments = listOf(navArgument("trackIndex") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val trackIndex = backStackEntry.arguments?.getInt("trackIndex") ?: 0
+                val searchState = searchViewModel.searchScreenState.collectAsState().value
+
+                if (searchState is SearchState.Success) {
+                    val track = searchState.foundList.getOrNull(trackIndex)
+                    if (track != null) {
+                        TrackDetailsScreen(
+                            track = track,
+                            playlistsViewModel = playlistsViewModel,
+                            navigateBack = { navController.popBackStack() }
+                        )
+                    }
                 }
-            )
-        }
-        composable(route = Screen.Search.getRoute()) {
-            val viewModel: SearchViewModel = viewModel(
-                factory = SearchViewModel.getViewModelFactory()
-            )
-            SearchScreen(viewModel) { navController.popBackStack() }
-        }
-        composable(route = Screen.Playlists.getRoute()) {
-            PlaylistsScreen { navController.popBackStack() }
-        }
-        composable(route = Screen.Favorites.getRoute()) {
-            FavoritesScreen { navController.popBackStack() }
-        }
-        composable(route = Screen.Settings.getRoute()) {
-            SettingsScreen { navController.popBackStack() }
+            }
+
+            composable(
+                route = "favorite_track_details/{trackIndex}",
+                arguments = listOf(navArgument("trackIndex") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val trackIndex = backStackEntry.arguments?.getInt("trackIndex") ?: 0
+                val track = favoriteTracks.getOrNull(trackIndex)
+
+                if (track != null) {
+                    TrackDetailsScreen(
+                        track = track,
+                        playlistsViewModel = playlistsViewModel,
+                        navigateBack = { navController.popBackStack() }
+                    )
+                }
+            }
+
+            composable(Screen.Favorites.getRoute()) {
+                FavoritesScreen(
+                    playlistsViewModel = playlistsViewModel,
+                    isDarkTheme = isDarkTheme,
+                    navigateBack = { navController.popBackStack() },
+                    navigateToPlayer = { index ->
+                        navController.navigate("favorite_track_details/$index")
+                    }
+                )
+            }
+
+            composable(Screen.Settings.getRoute()) {
+                SettingsScreen(
+                    settingsViewModel = settingsViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

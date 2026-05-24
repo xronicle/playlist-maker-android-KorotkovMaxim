@@ -1,12 +1,12 @@
-Задача 1. Создать SearchViewModel
+## Задача 1. Создать SearchViewModel
 
-1. Создать `sealed class SearchState` с четырьмя состояниями поиска
-2. Создать `Creator` для внедрения репозитория как зависимость
-3. Создать `SearchViewModel` с `Factory`, функцией поиска, состоянием `SearchState`
+- [x] Создать `sealed class SearchState` с четырьмя состояниями поиска
+- [x] Создать `Creator` для внедрения репозитория как зависимость
+- [x] Создать `SearchViewModel` с `Factory`, функцией поиска, состоянием `SearchState`
 
-Задача 2. Создать SearchScreen
+## Задача 2. Создать SearchScreen
 
-1. Добавить передачу `SearchViewModel` в `SearchScreen` через `PlaylistHost`
-2. Привязать `SearchViewModel` к существующему `SearchScreen`
-3. Сверстать список треков по макету Figma
-4. Добавить обработку всех состояний `SearchState`
+- [x] Добавить передачу `SearchViewModel` в `SearchScreen` через `PlaylistHost`
+- [x] Привязать `SearchViewModel` к существующему `SearchScreen`
+- [x] Сверстать список треков по макету Figma
+- [x] Добавить обработку всех состояний `SearchState`, а также вызов функции поиска при нажатии соответствующей кнопки
