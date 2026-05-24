@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +30,7 @@ fun Track(track: Track) {
     ) {
         Image(
             modifier = Modifier.size(45.dp),
-            painter = painterResource(id = R.drawable.ic_music),
+            imageVector = Icons.Filled.Audiotrack,
             contentDescription = "Трек ${track.trackName}"
         )
         Column(
