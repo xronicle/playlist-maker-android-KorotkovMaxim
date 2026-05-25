@@ -1,8 +1,11 @@
 package com.example.playlistmaker.di
 
+import android.content.Context
+import androidx.room.Room
 import com.example.playlistmaker.data.network.ITunesApiService
 import com.example.playlistmaker.data.network.RetrofitNetworkClient
 import com.example.playlistmaker.data.NetworkClient
+import com.example.playlistmaker.data.database.AppDatabase
 import com.example.playlistmaker.data.repository.PlaylistsRepositoryImpl
 import com.example.playlistmaker.data.repository.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.repository.TracksRepositoryImpl
@@ -30,11 +33,19 @@ val dataModule = module {
     single<NetworkClient> {
         RetrofitNetworkClient(api = get())
     }
+
+    single {
+        Room.databaseBuilder(
+            get<Context>(),
+            AppDatabase::class.java,
+            "playlists_maker_database.db"
+        ).build()
+    }
 }
 
 val repositoryModule = module {
     single<TracksRepository> {
-        TracksRepositoryImpl(networkClient = get())
+        TracksRepositoryImpl(networkClient = get(), database = get())
     }
 
     single<PlaylistsRepository> {
