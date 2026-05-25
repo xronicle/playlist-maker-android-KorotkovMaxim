@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 object DatabaseMock {
     private val _favoriteTracks = MutableStateFlow<List<Track>>(emptyList())
@@ -21,51 +22,64 @@ object DatabaseMock {
         } else {
             currentList.add(track.copy(favorite = true))
         }
-        // Обновляем Flow, и все экраны мгновенно получают новый список
         _favoriteTracks.value = currentList
     }
 
     fun isFavorite(trackId: Long): Boolean = _favoriteTracks.value.any { it.id == trackId }
 
-    // НОВАЯ ФУНКЦИЯ: Ищем трек по ID
     fun getTrackById(id: Long): Track? {
         return _favoriteTracks.value.find { it.id == id }
     }
+    private val _playlists = MutableStateFlow<List<Playlist>>(emptyList())
 
-    fun addTrackToPlaylist(track: Track, playlistId: Long) {
-        playlistMap.getOrPut(playlistId) { mutableListOf() }.add(track)
+    fun getAllPlaylists(): Flow<List<Playlist>> = _playlists.asStateFlow()
+
+    fun getPlaylist(playlistId: Long): Flow<Playlist?> = _playlists.map { list ->
+        list.find { it.id == playlistId }
     }
 
-    fun removeTrackFromPlaylist(trackId: Long, playlistId: Long) {
-        playlistMap[playlistId]?.removeAll { it.id == trackId }
-    }
-
-    // ================= ПЛЕЙЛИСТЫ =================
-    private val playlists = mutableListOf<Playlist>()
-
-    fun getAllPlaylists(): Flow<List<Playlist>> = flow {
-        emit(playlists)
-    }
-
-    fun getPlaylist(playlistId: Long): Flow<Playlist?> = flow {
-        emit(playlists.find { it.id == playlistId })
-    }
-
-    suspend fun addNewPlaylist(name: String, description: String) {
+    suspend fun addNewPlaylist(name: String, description: String, imageUri: String?) {
+        val currentList = _playlists.value.toMutableList()
         val newPlaylist = Playlist(
             id = System.currentTimeMillis(),
             name = name,
             description = description,
-            tracks = mutableListOf()
+            imageUri = imageUri
         )
-        playlists.add(newPlaylist)
+        currentList.add(newPlaylist)
+        _playlists.value = currentList
     }
 
     suspend fun deletePlaylistById(id: Long) {
-        playlists.removeAll { it.id == id }
+        val currentList = _playlists.value.toMutableList()
+        currentList.removeAll { it.id == id }
+        _playlists.value = currentList
     }
 
-    // ================= ИСТОРИЯ ПОИСКА =================
+    fun addTrackToPlaylist(track: Track, playlistId: Long) {
+        val currentList = _playlists.value.toMutableList()
+        val index = currentList.indexOfFirst { it.id == playlistId }
+        if (index != -1) {
+            val oldPlaylist = currentList[index]
+            if (oldPlaylist.tracks.none { it.id == track.id }) {
+                val updatedTracks = oldPlaylist.tracks.toMutableList()
+                updatedTracks.add(track)
+                currentList[index] = oldPlaylist.copy(tracks = updatedTracks)
+                _playlists.value = currentList
+            }
+        }
+    }
+
+    fun removeTrackFromPlaylist(trackId: Long, playlistId: Long) {
+        val currentList = _playlists.value.toMutableList()
+        val index = currentList.indexOfFirst { it.id == playlistId }
+        if (index != -1) {
+            val oldPlaylist = currentList[index]
+            val updatedTracks = oldPlaylist.tracks.filter { it.id != trackId }
+            currentList[index] = oldPlaylist.copy(tracks = updatedTracks)
+            _playlists.value = currentList
+        }
+    }
     private val searchHistory = mutableListOf<String>()
 
     fun getHistory(): List<String> = searchHistory.toList()

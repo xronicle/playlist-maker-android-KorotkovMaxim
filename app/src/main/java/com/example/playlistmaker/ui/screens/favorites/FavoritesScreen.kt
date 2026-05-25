@@ -30,7 +30,7 @@ fun FavoritesScreen(
     playlistsViewModel: PlaylistsViewModel,
     isDarkTheme: Boolean,
     navigateBack: () -> Unit,
-    navigateToPlayer: (Long) -> Unit // ТЕПЕРЬ ТУТ Long!
+    navigateToPlayer: (Long) -> Unit
 ) {
     val favoriteTracks by playlistsViewModel.favoriteList.collectAsState(initial = emptyList())
 

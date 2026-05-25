@@ -50,17 +50,13 @@ class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRep
         DatabaseMock.toggleFavorite(track)
     }
     override suspend fun deleteTrackFromPlaylist(track: Track) {
-        // Здесь потребуется ID плейлиста, если логика сложная.
-        // Пока для примера удалим из всех плейлистов или передавай ID
         DatabaseMock.removeTrackFromPlaylist(track.id, 0L)
     }
 
     override suspend fun deleteTracksByPlaylistId(id: Long) {
-        // Реализация очистки плейлиста
     }
 
     override fun getTrackByNameAndArtist(track: Track): Flow<Track?> = flow {
-        // Возвращаем track с актуальным статусом favorite из нашего мока
         val isFav = DatabaseMock.isFavorite(track.id)
         emit(track.copy(favorite = isFav))
     }

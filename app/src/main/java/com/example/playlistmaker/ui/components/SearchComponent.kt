@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme // Добавлен импорт для темы
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,16 +46,14 @@ fun TrackListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        // Заменили Box на SubcomposeAsyncImage от Coil
         SubcomposeAsyncImage(
-            model = track.image, // Ссылка на картинку из сети
+            model = track.image,
             contentDescription = "Обложка",
             modifier = Modifier
                 .size(48.dp)
-                .clip(RoundedCornerShape(4.dp)), // Скругляем саму скачанную картинку
-            contentScale = ContentScale.Crop, // Обрезаем, чтобы не искажались пропорции
+                .clip(RoundedCornerShape(4.dp)),
+            contentScale = ContentScale.Crop,
 
-            // То, что показывается во время загрузки или если нет интернета
             loading = {
                 Box(
                     modifier = Modifier
@@ -95,7 +94,7 @@ fun TrackListItem(
         ) {
             Text(
                 text = track.trackName,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
@@ -146,7 +145,10 @@ fun HistoryRequests(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = historyList[index])
+                Text(
+                    text = historyList[index],
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
             if (historyList[index] != historyList.last()) {
                 HorizontalDivider(thickness = 0.5.dp)

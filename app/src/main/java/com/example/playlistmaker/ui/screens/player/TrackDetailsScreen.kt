@@ -23,7 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.ui.components.PlaylistItemCompact
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsViewModel
+import kotlinx.coroutines.launch // Обязательный импорт для работы со scope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,11 +34,13 @@ fun TrackDetailsScreen(
     playlistsViewModel: PlaylistsViewModel,
     navigateBack: () -> Unit
 ) {
-    val trackState by playlistsViewModel.getTrackState(track).collectAsState(initial = track)
     val playlists by playlistsViewModel.playlists.collectAsState(initial = emptyList())
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
-    val displayTrack = trackState ?: track
-    var isFavorite by remember(displayTrack.favorite) { mutableStateOf(displayTrack.favorite) }
+    val scope = rememberCoroutineScope()
+
+    var isFavorite by remember { mutableStateOf(track.favorite) }
 
     Column(
         modifier = Modifier
@@ -61,7 +65,7 @@ fun TrackDetailsScreen(
 
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             AsyncImage(
-                model = displayTrack.image.replaceAfterLast('/', "512x512bb.jpg"),
+                model = track.image.replaceAfterLast('/', "512x512bb.jpg"),
                 contentDescription = "Обложка",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -72,13 +76,13 @@ fun TrackDetailsScreen(
             )
 
             Text(
-                text = displayTrack.trackName,
+                text = track.trackName,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = displayTrack.artistName,
+                text = track.artistName,
                 fontSize = 14.sp,
                 color = Color.Gray
             )
@@ -109,7 +113,7 @@ fun TrackDetailsScreen(
                         .size(40.dp)
                         .clickable {
                             isFavorite = !isFavorite
-                            playlistsViewModel.toggleFavorite(displayTrack, isFavorite)
+                            playlistsViewModel.toggleFavorite(track, isFavorite)
                         }
                 )
             }
@@ -124,7 +128,7 @@ fun TrackDetailsScreen(
             ) {
                 Text(text = "Длительность", color = Color.Gray, fontSize = 14.sp)
                 Text(
-                    text = displayTrack.trackTime,
+                    text = track.trackTime,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onBackground
@@ -136,40 +140,50 @@ fun TrackDetailsScreen(
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.surface
         ) {
-            if (playlists.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "У вас пока нет плейлистов",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 16.sp
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 32.dp)
-                ) {
-                    items(playlists) { playlist ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Добавить в плейлист",
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+
+
+                if (playlists.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(
-                            text = playlist.name,
-                            fontSize = 18.sp,
+                            text = "У вас пока нет плейлистов",
                             color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    playlistsViewModel.insertTrackToPlaylist(displayTrack, playlist.id)
-                                    showBottomSheet = false
-                                }
-                                .padding(horizontal = 24.dp, vertical = 16.dp)
+                            fontSize = 16.sp
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(playlists) { playlist ->
+                            PlaylistItemCompact(playlist = playlist) {
+                                playlistsViewModel.insertTrackToPlaylist(track, playlist.id)
+                                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                    if (!sheetState.isVisible) {
+                                        showBottomSheet = false
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

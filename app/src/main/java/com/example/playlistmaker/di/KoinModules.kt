@@ -9,6 +9,7 @@ import com.example.playlistmaker.data.repository.TracksRepositoryImpl
 import com.example.playlistmaker.domain.api.PlaylistsRepository
 import com.example.playlistmaker.domain.api.SearchHistoryRepository
 import com.example.playlistmaker.domain.api.TracksRepository
+import com.example.playlistmaker.ui.screens.playlist.PlaylistViewModel
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsViewModel
 import com.example.playlistmaker.ui.screens.search.SearchViewModel
 import com.example.playlistmaker.ui.screens.settings.SettingsViewModel
@@ -17,23 +18,20 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-// Модуль для работы с данными (Сеть)
 val dataModule = module {
     single<ITunesApiService> {
         Retrofit.Builder()
             .baseUrl("https://itunes.apple.com")
-            // Убедись, что у тебя подключена библиотека Gson (com.squareup.retrofit2:converter-gson)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ITunesApiService::class.java)
     }
 
     single<NetworkClient> {
-        RetrofitNetworkClient(api = get()) // get() сам найдет ITunesApiService выше
+        RetrofitNetworkClient(api = get())
     }
 }
 
-// Модуль для репозиториев
 val repositoryModule = module {
     single<TracksRepository> {
         TracksRepositoryImpl(networkClient = get())
@@ -62,5 +60,12 @@ val viewModelModule = module {
 
     viewModel {
         SettingsViewModel(application = get())
+    }
+
+    viewModel { (id: Long) ->
+        PlaylistViewModel(
+            playlistsRepository = get(),
+            playlistId = id
+        )
     }
 }
