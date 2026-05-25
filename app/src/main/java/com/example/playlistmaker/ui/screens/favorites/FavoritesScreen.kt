@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.playlistmaker.R
-import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.ui.components.TrackListItem
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsViewModel
 
@@ -90,10 +89,8 @@ fun FavoritesScreen(
             ) {
                 items(favoriteTracks.size) { index ->
                     val track = favoriteTracks[index]
-                    Box(modifier = Modifier.clickable { navigateToPlayer(track.id) }) {
-                        TrackListItem(track = track) {
-                            navigateToPlayer(track.id)
-                        }
+                    TrackListItem(track = track) {
+                        navigateToPlayer(track.id)
                     }
                 }
             }

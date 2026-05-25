@@ -1,6 +1,5 @@
 package com.example.playlistmaker.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -14,17 +13,19 @@ import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme // Добавлен импорт для темы
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.playlistmaker.R
+import coil.compose.SubcomposeAsyncImage
 import com.example.playlistmaker.domain.models.Track
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -44,19 +45,46 @@ fun TrackListItem(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+
+        SubcomposeAsyncImage(
+            model = track.image,
+            contentDescription = "Обложка",
             modifier = Modifier
                 .size(48.dp)
-                .background(Color(0xFF333333), RoundedCornerShape(4.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Audiotrack,
-                contentDescription = "Обложка",
-                tint = Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
-        }
+                .clip(RoundedCornerShape(4.dp)),
+            contentScale = ContentScale.Crop,
+
+            loading = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF333333)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Audiotrack,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            },
+            error = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF333333)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Audiotrack,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        )
 
         Spacer(modifier = Modifier.width(16.dp))
 
@@ -66,7 +94,7 @@ fun TrackListItem(
         ) {
             Text(
                 text = track.trackName,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
@@ -117,7 +145,10 @@ fun HistoryRequests(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = historyList[index])
+                Text(
+                    text = historyList[index],
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
             if (historyList[index] != historyList.last()) {
                 HorizontalDivider(thickness = 0.5.dp)

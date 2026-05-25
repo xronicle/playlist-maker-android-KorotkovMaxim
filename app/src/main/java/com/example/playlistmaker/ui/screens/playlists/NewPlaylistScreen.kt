@@ -96,7 +96,7 @@ fun NewPlaylistScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
-                    .aspectRatio(1f) // Пропорция 1:1
+                    .aspectRatio(1f)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color.Transparent)
                     .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
@@ -133,6 +133,8 @@ fun NewPlaylistScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = Color.Gray
                 )
@@ -147,6 +149,8 @@ fun NewPlaylistScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = Color.Gray
                 )
@@ -156,7 +160,7 @@ fun NewPlaylistScreen(
 
             Button(
                 onClick = {
-                    playlistsViewModel.createNewPlayList(name, description)
+                    playlistsViewModel.createNewPlayList(name, description, imageUri?.toString())
                     navigateBack()
                 },
                 enabled = name.isNotBlank(),

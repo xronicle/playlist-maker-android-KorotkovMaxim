@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember // ОЧЕНЬ ВАЖНЫЙ ИМПОРТ ДЛЯ РЕШЕНИЯ ПРОБЛЕМЫ
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -14,6 +15,8 @@ import androidx.navigation.navArgument
 import com.example.playlistmaker.ui.screens.favorites.FavoritesScreen
 import com.example.playlistmaker.ui.screens.main.MainScreen
 import com.example.playlistmaker.ui.screens.player.TrackDetailsScreen
+import com.example.playlistmaker.ui.screens.playlist.PlaylistScreen
+import com.example.playlistmaker.ui.screens.playlist.PlaylistViewModel
 import com.example.playlistmaker.ui.screens.playlists.NewPlaylistScreen
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsScreen
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsViewModel
@@ -22,16 +25,18 @@ import com.example.playlistmaker.ui.screens.search.SearchState
 import com.example.playlistmaker.ui.screens.search.SearchViewModel
 import com.example.playlistmaker.ui.screens.settings.SettingsScreen
 import com.example.playlistmaker.ui.screens.settings.SettingsViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
-fun PlaylistHost(
-    searchViewModel: SearchViewModel,
-    playlistsViewModel: PlaylistsViewModel,
-    settingsViewModel: SettingsViewModel
-) {
+fun PlaylistHost() {
     val navController = rememberNavController()
-    val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
 
+    val searchViewModel: SearchViewModel = koinViewModel()
+    val playlistsViewModel: PlaylistsViewModel = koinViewModel()
+    val settingsViewModel: SettingsViewModel = koinViewModel()
+
+    val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
     val favoriteTracks by playlistsViewModel.favoriteList.collectAsState(initial = emptyList())
 
     Scaffold { innerPadding ->
@@ -71,6 +76,7 @@ fun PlaylistHost(
                     isDarkTheme = isDarkTheme,
                     addNewPlaylist = { navController.navigate("new_playlist") },
                     navigateToPlaylist = { playlistId ->
+                        navController.navigate("playlist_details/$playlistId")
                     },
                     navigateBack = { navController.popBackStack() }
                 )
@@ -103,11 +109,14 @@ fun PlaylistHost(
             }
 
             composable(
-                route = "favorite_track_details/{trackIndex}",
-                arguments = listOf(navArgument("trackIndex") { type = NavType.IntType })
+                route = "favorite_track_details/{trackId}",
+                arguments = listOf(navArgument("trackId") { type = NavType.LongType })
             ) { backStackEntry ->
-                val trackIndex = backStackEntry.arguments?.getInt("trackIndex") ?: 0
-                val track = favoriteTracks.getOrNull(trackIndex)
+                val trackId = backStackEntry.arguments?.getLong("trackId") ?: 0L
+
+                val initialTrack = playlistsViewModel.getTrackById(trackId)
+
+                val track = remember { initialTrack }
 
                 if (track != null) {
                     TrackDetailsScreen(
@@ -123,8 +132,25 @@ fun PlaylistHost(
                     playlistsViewModel = playlistsViewModel,
                     isDarkTheme = isDarkTheme,
                     navigateBack = { navController.popBackStack() },
-                    navigateToPlayer = { index ->
-                        navController.navigate("favorite_track_details/$index")
+                    navigateToPlayer = { id ->
+                        navController.navigate("favorite_track_details/$id")
+                    }
+                )
+            }
+
+            composable(
+                route = "playlist_details/{playlistId}",
+                arguments = listOf(navArgument("playlistId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val playlistId = backStackEntry.arguments?.getLong("playlistId") ?: 0L
+
+                val playlistViewModel: PlaylistViewModel = koinViewModel { parametersOf(playlistId) }
+
+                PlaylistScreen(
+                    viewModel = playlistViewModel,
+                    navigateBack = { navController.popBackStack() },
+                    navigateToTrack = { trackId ->
+                        navController.navigate("favorite_track_details/$trackId")
                     }
                 )
             }
