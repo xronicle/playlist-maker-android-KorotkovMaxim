@@ -1,6 +1,8 @@
 package com.example.playlistmaker.data.database
 
+import com.example.playlistmaker.data.database.entity.PlaylistWithTracks
 import com.example.playlistmaker.data.database.entity.TrackEntity
+import com.example.playlistmaker.domain.models.Playlist
 import com.example.playlistmaker.domain.models.Track
 
 object TrackDbConverter {
@@ -12,7 +14,6 @@ object TrackDbConverter {
             trackTime = entity.trackTime,
             image = entity.image,
             favorite = entity.favorite,
-            playlistId = entity.playlistId
         )
     }
 
@@ -23,8 +24,19 @@ object TrackDbConverter {
             artistName = track.artistName,
             trackTime = track.trackTime,
             image = track.image,
-            favorite = track.favorite,
-            playlistId = track.playlistId
+            favorite = track.favorite
+        )
+    }
+}
+
+object PlaylistDbConverter {
+    fun map(entityWithTracks: PlaylistWithTracks): Playlist {
+        return Playlist(
+            id = entityWithTracks.playlist.id,
+            name = entityWithTracks.playlist.name,
+            description = entityWithTracks.playlist.description,
+            imageUri = entityWithTracks.playlist.imageUri,
+            tracks = entityWithTracks.tracks.map { TrackDbConverter.map(it) }
         )
     }
 }

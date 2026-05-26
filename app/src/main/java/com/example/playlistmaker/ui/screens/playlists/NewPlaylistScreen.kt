@@ -1,5 +1,6 @@
 package com.example.playlistmaker.ui.screens.playlists
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -16,12 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.playlistmaker.R
+import java.io.File
+import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +34,7 @@ fun NewPlaylistScreen(
     playlistsViewModel: PlaylistsViewModel,
     navigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -160,7 +165,8 @@ fun NewPlaylistScreen(
 
             Button(
                 onClick = {
-                    playlistsViewModel.createNewPlayList(name, description, imageUri?.toString())
+                    val savedImageUri = imageUri?.let { saveImageToPrivateStorage(context, it) }
+                    playlistsViewModel.createNewPlayList(name, description, savedImageUri?.toString())
                     navigateBack()
                 },
                 enabled = name.isNotBlank(),
@@ -176,5 +182,21 @@ fun NewPlaylistScreen(
                 Text("Создать", fontSize = 16.sp)
             }
         }
+    }
+}
+fun saveImageToPrivateStorage(context: Context, uri: Uri): Uri? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val fileName = "playlist_cover_${System.currentTimeMillis()}.jpg"
+        val file = File(context.filesDir, fileName)
+        val outputStream = FileOutputStream(file)
+
+        inputStream?.copyTo(outputStream)
+
+        inputStream?.close()
+        outputStream?.close()
+        Uri.fromFile(file)
+    } catch (e: Exception) {
+        null
     }
 }

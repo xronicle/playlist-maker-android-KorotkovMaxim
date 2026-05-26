@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -135,9 +136,12 @@ fun PlaylistsScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp)
                 ) {
-                    items(playlists.size) { index ->
-                        PlaylistListItem(playlist = playlists[index]) {
-                            navigateToPlaylist(playlists[index].id)
+                    items(
+                        items = playlists,
+                        key = { playlist -> playlist.id }
+                    ) { playlist ->
+                        PlaylistListItem(playlist = playlist) {
+                            navigateToPlaylist(playlist.id)
                         }
                     }
                 }

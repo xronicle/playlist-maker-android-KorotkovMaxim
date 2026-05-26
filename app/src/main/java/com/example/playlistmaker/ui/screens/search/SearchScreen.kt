@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -41,7 +42,7 @@ fun SearchScreen(
 
     val screenState by searchViewModel.searchScreenState.collectAsState()
 
-    var text by remember { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
 
     var isFocused by remember { mutableStateOf(false) }
 
@@ -204,8 +205,6 @@ fun SearchScreen(
 
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Основной контент
         Box(modifier = Modifier.fillMaxSize()) {
             when (screenState) {
                 is SearchState.Initial -> {

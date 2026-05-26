@@ -3,6 +3,7 @@ package com.example.playlistmaker.data.repository
 import com.example.playlistmaker.data.NetworkClient
 import com.example.playlistmaker.data.database.AppDatabase
 import com.example.playlistmaker.data.database.TrackDbConverter
+import com.example.playlistmaker.data.database.entity.PlaylistTrackCrossRef
 import com.example.playlistmaker.data.dto.TracksSearchRequest
 import com.example.playlistmaker.data.dto.TracksSearchResponse
 import com.example.playlistmaker.domain.api.TracksRepository
@@ -36,8 +37,7 @@ class TracksRepositoryImpl(
                         artistName = dto.artistName,
                         trackTime = SimpleDateFormat("mm:ss", Locale.getDefault()).format(dto.trackTimeMillis),
                         image = dto.artworkUrl100 ?: "",
-                        favorite = false,
-                        playlistId = 0L
+                        favorite = false
                     )
                 }
                 emit(Resource.Success(tracks))
@@ -49,15 +49,16 @@ class TracksRepositoryImpl(
     }
 
     override suspend fun insertTrackToPlaylist(track: Track, playlistId: Long) {
-        tracksDao.insertTrack(TrackDbConverter.map(track.copy(playlistId = playlistId)))
+        tracksDao.insertTrack(TrackDbConverter.map(track))
+        tracksDao.insertPlaylistTrackCrossRef(PlaylistTrackCrossRef(playlistId, track.id))
     }
 
     override suspend fun updateTrackFavoriteStatus(track: Track, isFavorite: Boolean) {
-        tracksDao.insertTrack(TrackDbConverter.map(track.copy(favorite = isFavorite)))
+        tracksDao.insertTrack(TrackDbConverter.map(track))
+        tracksDao.updateFavoriteStatus(track.id, isFavorite)
     }
-
-    override suspend fun deleteTrackFromPlaylist(track: Track) {
-        tracksDao.deleteTrack(TrackDbConverter.map(track))
+    override suspend fun deleteTrackFromPlaylist(track: Track, playlistId: Long) {
+        tracksDao.removeTrackFromPlaylistRef(playlistId, track.id)
     }
 
     override suspend fun deleteTracksByPlaylistId(id: Long) {
@@ -67,5 +68,11 @@ class TracksRepositoryImpl(
     override fun getTrackByNameAndArtist(track: Track): Flow<Track?> {
         return tracksDao.getTrackByNameAndArtist(track.trackName, track.artistName)
             .map { entity -> entity?.let { TrackDbConverter.map(it) } }
+    }
+
+    override fun getFavoriteTracks(): Flow<List<Track>> {
+        return tracksDao.getFavoriteTracks().map { list ->
+            list.map { TrackDbConverter.map(it) }
+        }
     }
 }

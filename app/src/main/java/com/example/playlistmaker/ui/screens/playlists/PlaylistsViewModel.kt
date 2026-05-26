@@ -2,7 +2,6 @@ package com.example.playlistmaker.ui.screens.playlists
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.playlistmaker.data.DatabaseMock
 import com.example.playlistmaker.domain.api.PlaylistsRepository
 import com.example.playlistmaker.domain.api.TracksRepository
 import com.example.playlistmaker.domain.models.Playlist
@@ -17,15 +16,9 @@ class PlaylistsViewModel(
     private val tracksRepository: TracksRepository
 ) : ViewModel() {
 
-    val playlists: Flow<List<Playlist>> = flow {
-        val collectedPlaylists = mutableListOf<Playlist>()
-        playlistsRepository.getAllPlaylists().collect { playlist ->
-            collectedPlaylists.addAll(playlist)
-            emit(collectedPlaylists.toList())
-        }
-    }
+    val playlists: Flow<List<Playlist>> = playlistsRepository.getAllPlaylists()
 
-    val favoriteList: Flow<List<Track>> = DatabaseMock.getFavoriteTracks()
+    val favoriteList: Flow<List<Track>> = tracksRepository.getFavoriteTracks()
 
     fun createNewPlayList(namePlaylist: String, description: String, imageUri: String? = null) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -45,24 +38,16 @@ class PlaylistsViewModel(
         }
     }
 
-    fun deleteTrackFromPlaylist(track: Track) {
+    fun removeTrack(track: Track, playlistId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            tracksRepository.deleteTrackFromPlaylist(track)
+            tracksRepository.deleteTrackFromPlaylist(track, playlistId)
         }
     }
 
-    fun deletePlaylistById(id: Long) {
+    fun deletePlaylist(playlistId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            tracksRepository.deleteTracksByPlaylistId(id)
-            playlistsRepository.deletePlaylistById(id)
+            tracksRepository.deleteTracksByPlaylistId(playlistId)
+            playlistsRepository.deletePlaylistById(playlistId)
         }
-    }
-
-    fun getTrackState(track: Track): Flow<Track?> {
-        return tracksRepository.getTrackByNameAndArtist(track)
-    }
-
-    fun getTrackById(id: Long): Track? {
-        return DatabaseMock.getTrackById(id)
     }
 }

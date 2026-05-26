@@ -4,16 +4,25 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,8 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.playlistmaker.R
+import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.ui.components.TrackListItem
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistScreen(
     modifier: Modifier = Modifier,
@@ -36,12 +47,16 @@ fun PlaylistScreen(
 ) {
     val playlist by viewModel.playlist.collectAsState(initial = null)
 
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var showDeletePlaylistDialog by remember { mutableStateOf(false) }
+    var showDeleteTrackDialog by remember { mutableStateOf<Track?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Кнопка назад
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -93,7 +108,6 @@ fun PlaylistScreen(
                 )
             }
 
-            // Информация о плейлисте
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -128,19 +142,112 @@ fun PlaylistScreen(
                     imageVector = Icons.Filled.MoreVert,
                     contentDescription = "Menu",
                     tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { showBottomSheet = true }
                 )
             }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(tracks.size) { index ->
-                    val track = tracks[index]
-                    TrackListItem(track = track) {
-                        navigateToTrack(track.id)
+                items(items = tracks, key = { it.id }) { track ->
+                    TrackListItem(
+                        track = track,
+                        onClick = { navigateToTrack(track.id) },
+                        onLongClick = { showDeleteTrackDialog = track }
+                    )
+                }
+            }
+
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showBottomSheet = false },
+                    sheetState = sheetState,
+                    containerColor = MaterialTheme.colorScheme.background
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 32.dp)
+                    ) {
+                        Text(
+                            text = "Поделиться",
+                            fontSize = 16.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {}
+                                .padding(16.dp),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = "Редактировать информацию",
+                            fontSize = 16.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {  }
+                                .padding(16.dp),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = "Удалить плейлист",
+                            fontSize = 16.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    showBottomSheet = false
+                                    showDeletePlaylistDialog = true
+                                }
+                                .padding(16.dp),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                 }
+            }
+
+            if (showDeletePlaylistDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeletePlaylistDialog = false },
+                    title = { Text(text = "Хотите удалить плейлист «${currentPlaylist.name}»?", color = MaterialTheme.colorScheme.onBackground) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.deletePlaylist(currentPlaylist.id)
+                            showDeletePlaylistDialog = false
+                            navigateBack()
+                        }) {
+                            Text("ДА")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeletePlaylistDialog = false }) {
+                            Text("НЕТ")
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            }
+
+            if (showDeleteTrackDialog != null) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteTrackDialog = null },
+                    title = { Text("Хотите удалить трек?", color = MaterialTheme.colorScheme.onBackground) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDeleteTrackDialog?.let { track ->
+                                viewModel.removeTrack(track, currentPlaylist.id)
+                            }
+                            showDeleteTrackDialog = null
+                        }) {
+                            Text("ДА")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteTrackDialog = null }) {
+                            Text("НЕТ")
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             }
         }
     }
