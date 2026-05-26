@@ -18,7 +18,7 @@ class RetrofitNetworkClient(private val api: ITunesApiService) : NetworkClient {
             try {
                 val response = api.searchTracks(dto.expression)
                 response.apply { resultCode = 200 }
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
                 BaseResponse().apply { resultCode = -1 }
             }
         }

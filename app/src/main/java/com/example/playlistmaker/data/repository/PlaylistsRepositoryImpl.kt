@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(
-    private val database: AppDatabase
+    database: AppDatabase
 ) : PlaylistsRepository {
 
     private val dao = database.playlistDao()

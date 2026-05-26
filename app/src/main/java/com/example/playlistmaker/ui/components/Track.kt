@@ -16,7 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.models.Track
@@ -31,7 +31,7 @@ fun Track(track: Track) {
         Image(
             modifier = Modifier.size(45.dp),
             imageVector = Icons.Filled.Audiotrack,
-            contentDescription = "Трек ${track.trackName}"
+            contentDescription = stringResource(R.string.content_desc_track_icon, track.trackName)
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(1.dp)

@@ -3,10 +3,10 @@ package com.example.playlistmaker.di
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
-import com.example.playlistmaker.data.network.ITunesApiService
-import com.example.playlistmaker.data.network.RetrofitNetworkClient
 import com.example.playlistmaker.data.NetworkClient
 import com.example.playlistmaker.data.database.AppDatabase
+import com.example.playlistmaker.data.network.ITunesApiService
+import com.example.playlistmaker.data.network.RetrofitNetworkClient
 import com.example.playlistmaker.data.preferences.SearchHistoryPreferences
 import com.example.playlistmaker.data.repository.PlaylistsRepositoryImpl
 import com.example.playlistmaker.data.repository.SearchHistoryRepositoryImpl
@@ -14,7 +14,7 @@ import com.example.playlistmaker.data.repository.TracksRepositoryImpl
 import com.example.playlistmaker.domain.api.PlaylistsRepository
 import com.example.playlistmaker.domain.api.SearchHistoryRepository
 import com.example.playlistmaker.domain.api.TracksRepository
-import com.example.playlistmaker.ui.screens.playlist.PlaylistViewModel
+import com.example.playlistmaker.ui.screens.playlists.PlaylistViewModel
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsViewModel
 import com.example.playlistmaker.ui.screens.search.SearchViewModel
 import com.example.playlistmaker.ui.screens.settings.SettingsViewModel

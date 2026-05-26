@@ -14,7 +14,6 @@ lifecycle = "2.10.0"
 material = "1.13.0"
 activity = "1.11.0"
 navigationCompose = "2.9.6"
-# ДОБАВЛЕННЫЕ ВЕРСИИ KSP И ROOM
 ksp = "2.0.21-1.0.27"
 room = "2.6.1"
 
@@ -48,5 +47,4 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-# ДОБАВЛЕННЫЙ ПЛАГИН KSP
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

@@ -1,8 +1,18 @@
-package com.example.playlistmaker.ui.screens.playlist
+package com.example.playlistmaker.ui.screens.playlists
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,7 +77,7 @@ fun PlaylistScreen(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = stringResource(R.string.back),
                 modifier = Modifier
                     .size(24.dp)
                     .clickable { navigateBack() },
@@ -76,7 +87,7 @@ fun PlaylistScreen(
 
         if (playlist != null) {
             val currentPlaylist = playlist!!
-            val tracks = currentPlaylist.tracks ?: emptyList()
+            val tracks = currentPlaylist.tracks
 
             val totalMinutes = tracks.sumOf { track ->
                 val parts = track.trackTime.split(":")
@@ -100,7 +111,7 @@ fun PlaylistScreen(
             ) {
                 AsyncImage(
                     model = currentPlaylist.imageUri,
-                    contentDescription = "Обложка плейлиста",
+                    contentDescription = stringResource(R.string.label_playlist),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                     placeholder = painterResource(id = R.drawable.add_photo),
@@ -131,7 +142,7 @@ fun PlaylistScreen(
                 }
 
                 Text(
-                    text = "$totalMinutes минут • ${tracks.size} треков",
+                    text = stringResource(R.string.playlist_stats, totalMinutes, tracks.size),
                     fontSize = 16.sp,
                     color = Color.Gray
                 )
@@ -140,7 +151,7 @@ fun PlaylistScreen(
 
                 Icon(
                     imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "Menu",
+                    contentDescription = stringResource(R.string.menu),
                     tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .size(24.dp)
@@ -172,7 +183,7 @@ fun PlaylistScreen(
                             .padding(bottom = 32.dp)
                     ) {
                         Text(
-                            text = "Поделиться",
+                            text = stringResource(R.string.share),
                             fontSize = 16.sp,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -181,16 +192,16 @@ fun PlaylistScreen(
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            text = "Редактировать информацию",
+                            text = stringResource(R.string.edit_info),
                             fontSize = 16.sp,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {  }
+                                .clickable { }
                                 .padding(16.dp),
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            text = "Удалить плейлист",
+                            text = stringResource(R.string.remove_playlist),
                             fontSize = 16.sp,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -210,7 +221,10 @@ fun PlaylistScreen(
                     onDismissRequest = { showDeletePlaylistDialog = false },
                     title = {
                         Text(
-                            text = "Хотите удалить плейлист «${currentPlaylist.name}»?",
+                            text = stringResource(
+                                R.string.delete_playlist_dialog_title,
+                                currentPlaylist.name
+                            ),
                             fontSize = 18.sp,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -221,12 +235,12 @@ fun PlaylistScreen(
                             showDeletePlaylistDialog = false
                             navigateBack()
                         }) {
-                            Text("Да", fontSize = 16.sp)
+                            Text(stringResource(R.string.yes), fontSize = 16.sp)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeletePlaylistDialog = false }) {
-                            Text("Нет", fontSize = 16.sp)
+                            Text(stringResource(R.string.no), fontSize = 16.sp)
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.surface
@@ -238,7 +252,7 @@ fun PlaylistScreen(
                     onDismissRequest = { showDeleteTrackDialog = null },
                     title = {
                         Text(
-                            text = "Хотите удалить трек?",
+                            text = stringResource(R.string.you_want_delete_track),
                             fontSize = 18.sp,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -250,12 +264,12 @@ fun PlaylistScreen(
                             }
                             showDeleteTrackDialog = null
                         }) {
-                            Text("Да", fontSize = 16.sp)
+                            Text(stringResource(R.string.yes), fontSize = 16.sp)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeleteTrackDialog = null }) {
-                            Text("Нет", fontSize = 16.sp)
+                            Text(stringResource(R.string.no), fontSize = 16.sp)
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.surface

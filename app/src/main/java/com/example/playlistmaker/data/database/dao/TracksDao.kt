@@ -1,7 +1,6 @@
 package com.example.playlistmaker.data.database.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -11,8 +10,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TracksDao {
-
-    // --- НОВЫЕ МЕТОДЫ ДЛЯ СВЯЗИ МНОГИЕ КО МНОГИМ ---
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertTrack(track: TrackEntity)
@@ -29,6 +26,7 @@ interface TracksDao {
 
     @Query("DELETE FROM PlaylistTrackCrossRef WHERE playlistId = :playlistId AND trackId = :trackId")
     suspend fun removeTrackFromPlaylistRef(playlistId: Long, trackId: Long)
+
     @Query("SELECT * FROM tracks WHERE favorite = 1")
     fun getFavoriteTracks(): Flow<List<TrackEntity>>
 

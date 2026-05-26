@@ -55,6 +55,7 @@ class SearchViewModel(
                             SearchState.Success(foundList = resource.data ?: emptyList())
                         }
                     }
+
                     is Resource.Error -> {
                         _searchScreenState.update {
                             SearchState.Fail(error = resource.message ?: "Unknown error")

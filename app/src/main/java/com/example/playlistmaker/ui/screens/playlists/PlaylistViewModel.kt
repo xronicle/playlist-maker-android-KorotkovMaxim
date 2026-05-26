@@ -1,4 +1,4 @@
-package com.example.playlistmaker.ui.screens.playlist
+package com.example.playlistmaker.ui.screens.playlists
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class PlaylistViewModel(
-    private val playlistId: Long,
+    playlistId: Long,
     private val playlistsRepository: PlaylistsRepository,
     private val tracksRepository: TracksRepository
 ) : ViewModel() {

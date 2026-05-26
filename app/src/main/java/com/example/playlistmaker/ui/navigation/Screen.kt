@@ -5,9 +5,7 @@ enum class Screen {
     Search,
     Settings,
     Playlists,
-    Favorites,
-    NewPlaylist,
-    TrackDetails;
+    Favorites;
 
     fun getRoute(): String {
         return this.toString().lowercase()

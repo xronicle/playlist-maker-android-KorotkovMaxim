@@ -17,7 +17,7 @@ import java.util.Locale
 
 class TracksRepositoryImpl(
     private val networkClient: NetworkClient,
-    private val database: AppDatabase
+    database: AppDatabase
 ) : TracksRepository {
 
     private val tracksDao = database.tracksDao()
@@ -29,19 +29,24 @@ class TracksRepositoryImpl(
             -1 -> {
                 emit(Resource.Error("Проверьте подключение к интернету"))
             }
+
             200 -> {
                 val tracks = (response as TracksSearchResponse).results.map { dto ->
                     Track(
                         id = dto.trackId,
                         trackName = dto.trackName,
                         artistName = dto.artistName,
-                        trackTime = SimpleDateFormat("mm:ss", Locale.getDefault()).format(dto.trackTimeMillis),
+                        trackTime = SimpleDateFormat(
+                            "mm:ss",
+                            Locale.getDefault()
+                        ).format(dto.trackTimeMillis),
                         image = dto.artworkUrl100 ?: "",
                         favorite = false
                     )
                 }
                 emit(Resource.Success(tracks))
             }
+
             else -> {
                 emit(Resource.Error("Ошибка сервера"))
             }
@@ -57,6 +62,7 @@ class TracksRepositoryImpl(
         tracksDao.insertTrack(TrackDbConverter.map(track))
         tracksDao.updateFavoriteStatus(track.id, isFavorite)
     }
+
     override suspend fun deleteTrackFromPlaylist(track: Track, playlistId: Long) {
         tracksDao.removeTrackFromPlaylistRef(playlistId, track.id)
     }

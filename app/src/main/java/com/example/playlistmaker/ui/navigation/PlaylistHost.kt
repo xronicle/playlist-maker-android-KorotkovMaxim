@@ -15,9 +15,9 @@ import androidx.navigation.navArgument
 import com.example.playlistmaker.ui.screens.favorites.FavoritesScreen
 import com.example.playlistmaker.ui.screens.main.MainScreen
 import com.example.playlistmaker.ui.screens.player.TrackDetailsScreen
-import com.example.playlistmaker.ui.screens.playlist.PlaylistScreen
-import com.example.playlistmaker.ui.screens.playlist.PlaylistViewModel
 import com.example.playlistmaker.ui.screens.playlists.NewPlaylistScreen
+import com.example.playlistmaker.ui.screens.playlists.PlaylistScreen
+import com.example.playlistmaker.ui.screens.playlists.PlaylistViewModel
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsScreen
 import com.example.playlistmaker.ui.screens.playlists.PlaylistsViewModel
 import com.example.playlistmaker.ui.screens.search.SearchScreen
@@ -117,7 +117,7 @@ fun PlaylistHost() {
                 val playlists by playlistsViewModel.playlists.collectAsState(initial = emptyList())
 
                 val initialTrack = favoriteTracks.find { it.id == trackId }
-                    ?: playlists.flatMap { it.tracks ?: emptyList() }.find { it.id == trackId }
+                    ?: playlists.flatMap { it.tracks }.find { it.id == trackId }
 
                 val track = remember { initialTrack }
 
@@ -147,7 +147,8 @@ fun PlaylistHost() {
             ) { backStackEntry ->
                 val playlistId = backStackEntry.arguments?.getLong("playlistId") ?: 0L
 
-                val playlistViewModel: PlaylistViewModel = koinViewModel { parametersOf(playlistId) }
+                val playlistViewModel: PlaylistViewModel =
+                    koinViewModel { parametersOf(playlistId) }
 
                 PlaylistScreen(
                     viewModel = playlistViewModel,

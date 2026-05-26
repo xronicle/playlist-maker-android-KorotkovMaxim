@@ -56,7 +56,7 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel, onBack: () -> Unit) {
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.arrow_back),
-                contentDescription = "Назад",
+                contentDescription = stringResource(R.string.back),
                 modifier = Modifier
                     .size(24.dp)
                     .clickable { onBack() },
@@ -82,13 +82,16 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel, onBack: () -> Unit) {
                 ListItem(
                     content = {
                         Text(
-                            text = "Темная тема",
+                            text = stringResource(R.string.dark_theme_in_settings),
                             color = MaterialTheme.colorScheme.onBackground,
                             style = MaterialTheme.typography.bodyLarge
                         )
                     },
                     trailingIcon = {
-                        Box(modifier = Modifier.height(24.dp), contentAlignment = Alignment.CenterEnd) {
+                        Box(
+                            modifier = Modifier.height(24.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
                             Switch(
                                 checked = isDarkTheme,
                                 onCheckedChange = { isChecked ->
@@ -127,7 +130,7 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel, onBack: () -> Unit) {
                 ) {
                     val intent = Intent(Intent.ACTION_SEND)
                     intent.putExtra(Intent.EXTRA_TEXT, shareMessage)
-                    intent.setType("text/plain")
+                    intent.type = "text/plain"
                     context.startActivity(intent)
                 },
 
@@ -152,8 +155,14 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel, onBack: () -> Unit) {
                 ) {
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
                         data = "mailto:".toUri()
-                        putExtra(Intent.EXTRA_EMAIL, arrayOf(context.getString(R.string.support_mail_to)))
-                        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.support_mail_title))
+                        putExtra(
+                            Intent.EXTRA_EMAIL,
+                            arrayOf(context.getString(R.string.support_mail_to))
+                        )
+                        putExtra(
+                            Intent.EXTRA_SUBJECT,
+                            context.getString(R.string.support_mail_title)
+                        )
                         putExtra(Intent.EXTRA_TEXT, context.getString(R.string.support_mail_text))
                     }
                     context.startActivity(intent)
