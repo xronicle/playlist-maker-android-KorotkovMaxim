@@ -208,19 +208,25 @@ fun PlaylistScreen(
             if (showDeletePlaylistDialog) {
                 AlertDialog(
                     onDismissRequest = { showDeletePlaylistDialog = false },
-                    title = { Text(text = "Хотите удалить плейлист «${currentPlaylist.name}»?", color = MaterialTheme.colorScheme.onBackground) },
+                    title = {
+                        Text(
+                            text = "Хотите удалить плейлист «${currentPlaylist.name}»?",
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
                     confirmButton = {
                         TextButton(onClick = {
                             viewModel.deletePlaylist(currentPlaylist.id)
                             showDeletePlaylistDialog = false
                             navigateBack()
                         }) {
-                            Text("ДА")
+                            Text("Да", fontSize = 16.sp)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeletePlaylistDialog = false }) {
-                            Text("НЕТ")
+                            Text("Нет", fontSize = 16.sp)
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.surface
@@ -230,7 +236,13 @@ fun PlaylistScreen(
             if (showDeleteTrackDialog != null) {
                 AlertDialog(
                     onDismissRequest = { showDeleteTrackDialog = null },
-                    title = { Text("Хотите удалить трек?", color = MaterialTheme.colorScheme.onBackground) },
+                    title = {
+                        Text(
+                            text = "Хотите удалить трек?",
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
                     confirmButton = {
                         TextButton(onClick = {
                             showDeleteTrackDialog?.let { track ->
@@ -238,12 +250,12 @@ fun PlaylistScreen(
                             }
                             showDeleteTrackDialog = null
                         }) {
-                            Text("ДА")
+                            Text("Да", fontSize = 16.sp)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDeleteTrackDialog = null }) {
-                            Text("НЕТ")
+                            Text("Нет", fontSize = 16.sp)
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.surface

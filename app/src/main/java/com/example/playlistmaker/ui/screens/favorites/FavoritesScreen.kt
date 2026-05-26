@@ -92,9 +92,15 @@ fun FavoritesScreen(
                     items = favoriteTracks,
                     key = { track -> track.id }
                 ) { track ->
-                    TrackListItem(track = track) {
-                        navigateToPlayer(track.id)
-                    }
+                    TrackListItem(
+                        track = track,
+                        onClick = {
+                            navigateToPlayer(track.id)
+                        },
+                        onLongClick = {
+                            playlistsViewModel.toggleFavorite(track, false)
+                        }
+                    )
                 }
             }
         }
