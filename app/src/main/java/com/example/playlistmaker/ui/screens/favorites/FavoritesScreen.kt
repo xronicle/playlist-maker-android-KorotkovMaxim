@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items // ВАЖНЫЙ ИМПОРТ
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -83,12 +84,14 @@ fun FavoritesScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 16.dp),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(favoriteTracks.size) { index ->
-                    val track = favoriteTracks[index]
+                items(
+                    items = favoriteTracks,
+                    key = { track -> track.id }
+                ) { track ->
                     TrackListItem(track = track) {
                         navigateToPlayer(track.id)
                     }

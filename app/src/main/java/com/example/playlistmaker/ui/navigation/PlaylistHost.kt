@@ -5,7 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember // ОЧЕНЬ ВАЖНЫЙ ИМПОРТ ДЛЯ РЕШЕНИЯ ПРОБЛЕМЫ
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -114,7 +114,10 @@ fun PlaylistHost() {
             ) { backStackEntry ->
                 val trackId = backStackEntry.arguments?.getLong("trackId") ?: 0L
 
-                val initialTrack = playlistsViewModel.getTrackById(trackId)
+                val playlists by playlistsViewModel.playlists.collectAsState(initial = emptyList())
+
+                val initialTrack = favoriteTracks.find { it.id == trackId }
+                    ?: playlists.flatMap { it.tracks ?: emptyList() }.find { it.id == trackId }
 
                 val track = remember { initialTrack }
 

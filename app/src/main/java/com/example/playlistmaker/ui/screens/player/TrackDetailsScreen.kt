@@ -35,12 +35,12 @@ fun TrackDetailsScreen(
     navigateBack: () -> Unit
 ) {
     val playlists by playlistsViewModel.playlists.collectAsState(initial = emptyList())
-
+    val favoriteTracks by playlistsViewModel.favoriteList.collectAsState(initial = emptyList())
+    val isFavorite = favoriteTracks.any { it.id == track.id }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    var isFavorite by remember { mutableStateOf(track.favorite) }
 
     Column(
         modifier = Modifier
@@ -112,8 +112,7 @@ fun TrackDetailsScreen(
                     modifier = Modifier
                         .size(40.dp)
                         .clickable {
-                            isFavorite = !isFavorite
-                            playlistsViewModel.toggleFavorite(track, isFavorite)
+                            playlistsViewModel.toggleFavorite(track, !isFavorite)
                         }
                 )
             }
